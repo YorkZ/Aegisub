@@ -147,6 +147,8 @@ public:
 	void Play();
 	/// Playing the current line, allow pausing and continuing
 	void PlayLineWithPause();
+	/// Play the video for the current primary range with pause
+	void PlayVideoPrimaryRangeWithPause();
 	/// Play the next frame then stop
 	void NextFrame();
 	/// Play the previous frame then stop
