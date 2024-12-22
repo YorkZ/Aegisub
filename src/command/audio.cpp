@@ -446,6 +446,35 @@ struct audio_autoscroll final : public Command {
 	}
 };
 
+struct audio_reset_selection_to_line final : public validate_audio_open {
+    CMD_NAME("audio/reset_selection_to_line")
+    STR_MENU("Reset Audio Selection to Current Line")
+    STR_DISP("Reset Audio Selection")
+    STR_HELP("Set the audio selection range to match the current subtitle line")
+
+    void operator()(agi::Context *c) override {
+        auto *activeLine = c->selectionController->GetActiveLine();
+        if (activeLine) {
+            auto *timingController = c->audioController->GetTimingController();
+            if (timingController) {
+                audio_autoscroll audio_autoscroll_cmd;
+                bool wasAutoScrollEnabled = audio_autoscroll_cmd.IsActive(c);
+                if (wasAutoScrollEnabled)
+                    // Disable audio auto scroll if it was enabled
+                    audio_autoscroll_cmd(c);
+
+                // Use OnLeftClick and OnMarkerDrag to simulate setting the selection
+                timingController->OnLeftClick(activeLine->Start, false, false, 1, 1);
+                timingController->OnRightClick(activeLine->End, false, 1, 1);
+
+                if (wasAutoScrollEnabled)
+                    // Re-enable audio auto scroll if it was enabled
+                    audio_autoscroll_cmd(c);
+            }
+        }
+    }
+};
+
 struct audio_autocommit final : public Command {
 	CMD_NAME("audio/opt/autocommit")
 	CMD_ICON(toggle_audio_autocommit)
@@ -560,6 +589,7 @@ namespace cmd {
 		reg(std::make_unique<audio_save_clip>());
 		reg(std::make_unique<audio_scroll_left>());
 		reg(std::make_unique<audio_scroll_right>());
+        reg(std::make_unique<audio_reset_selection_to_line>());
 		reg(std::make_unique<audio_stop>());
 		reg(std::make_unique<audio_toggle_spectrum>());
 		reg(std::make_unique<audio_vertical_link>());
