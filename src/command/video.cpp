@@ -614,6 +614,18 @@ struct video_play final : public validator_video_loaded {
 	}
 };
 
+struct video_play_line_with_pause final : public validator_video_loaded {
+	CMD_NAME("video/play/line_with_pause")
+	CMD_ICON(button_play)
+	STR_MENU("Play line with pause")
+	STR_DISP("Play line with pause")
+	STR_HELP("Play current line with pause")
+
+	void operator()(agi::Context *c) override {
+		c->videoController->PlayLineWithPause();
+	}
+};
+
 struct video_play_line final : public validator_video_loaded {
 	CMD_NAME("video/play/line")
 	CMD_ICON(button_playline)
@@ -768,6 +780,7 @@ namespace cmd {
 		reg(std::make_unique<video_opt_autoscroll>());
 		reg(std::make_unique<video_play>());
 		reg(std::make_unique<video_play_line>());
+		reg(std::make_unique<video_play_line_with_pause>());
 		reg(std::make_unique<video_show_overscan>());
 		reg(std::make_unique<video_stop>());
 		reg(std::make_unique<video_zoom_100>());

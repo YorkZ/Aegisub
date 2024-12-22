@@ -148,6 +148,28 @@ void VideoController::Play() {
 	playback.Start(10);
 }
 
+void VideoController::PlayLineWithPause() {
+	if (IsPlaying()) {
+		Stop();
+		return;
+	}
+
+	if (!provider) return;
+
+	AssDialogue *curline = context->selectionController->GetActiveLine();
+	int startFrame = FrameAtTime(curline->Start, agi::vfr::START) + 1;
+	end_frame = FrameAtTime(curline->End, agi::vfr::END) + 1;
+	if (frame_n < startFrame || frame_n >= end_frame - 1)
+		JumpToTime(curline->Start);
+
+	start_ms = TimeAtFrame(frame_n);
+
+	context->audioController->PlayRange(TimeRange(start_ms, curline->End));
+
+	playback_start_time = std::chrono::steady_clock::now();
+	playback.Start(10);
+}
+
 void VideoController::PlayLine() {
 	Stop();
 
