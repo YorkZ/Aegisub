@@ -224,6 +224,31 @@ void VideoController::PlayVideoPrimaryRangeWithPause() {
 	playback.Start(10);
 }
 
+void VideoController::PlayVideoPrimaryRange() {
+	if (IsPlaying())
+		Stop();
+
+	if (!provider) return;
+
+	// Get the primary range from the audio timing controller
+	TimeRange primaryRange = context->audioController->GetPrimaryPlaybackRange();
+	if (primaryRange.length() == 0) return;
+
+	// Convert time range to frames
+	end_frame = FrameAtTime(primaryRange.end(), agi::vfr::END) + 1;
+
+	JumpToTime(primaryRange.begin());
+
+	// Set playback parameters
+	start_ms = TimeAtFrame(frame_n);
+
+	// Play audio for the same range
+	context->audioController->PlayRange(TimeRange(start_ms, primaryRange.end()));
+
+	playback_start_time = std::chrono::steady_clock::now();
+	playback.Start(10);
+}
+
 void VideoController::Stop() {
 	if (IsPlaying()) {
 		playback.Stop();
