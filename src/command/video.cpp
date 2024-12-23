@@ -638,6 +638,18 @@ struct video_play_line final : public validator_video_loaded {
 	}
 };
 
+struct video_play_selection final : public validator_video_loaded {
+	CMD_NAME("video/play/selection")
+	CMD_ICON(button_playsel)
+	STR_MENU("Play current video selection")
+	STR_DISP("Play current video selection")
+	STR_HELP("Play video until the end of the selection is reached")
+
+	void operator()(agi::Context *c) override {
+		c->videoController->PlayVideoPrimaryRange();
+	}
+};
+
 struct video_play_selection_with_pause final : public validator_video_loaded {
 	CMD_NAME("video/play/selection_with_pause")
 	CMD_ICON(button_playsel)
@@ -793,6 +805,7 @@ namespace cmd {
 		reg(std::make_unique<video_play>());
 		reg(std::make_unique<video_play_line>());
 		reg(std::make_unique<video_play_line_with_pause>());
+		reg(std::make_unique<video_play_selection>());
 		reg(std::make_unique<video_play_selection_with_pause>());
 		reg(std::make_unique<video_show_overscan>());
 		reg(std::make_unique<video_stop>());
