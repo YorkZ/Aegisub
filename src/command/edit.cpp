@@ -753,6 +753,11 @@ struct edit_line_duplicate_shift_back final : public validate_video_and_sel_none
 	}
 };
 
+// Forward declaration for trim_text function
+namespace {
+	std::string trim_text(std::string text);
+}
+
 static void combine_lines(agi::Context *c, void (*combiner)(AssDialogue *, AssDialogue *), wxString const& message) {
 	auto sel = c->selectionController->GetSortedSelection();
 
@@ -763,6 +768,9 @@ static void combine_lines(agi::Context *c, void (*combiner)(AssDialogue *, AssDi
 		first->End = std::max(first->End, sel[i]->End);
 		delete sel[i];
 	}
+
+	// Trim the final combined line
+	first->Text = agi::Str(trim_text(first->Text.get()));
 
 	c->selectionController->SetSelectionAndActive({first}, first);
 
