@@ -31,6 +31,8 @@
 
 #include "command.h"
 
+#include "audio_timing.h"
+#include "audio_controller.h"
 #include "../ass_dialogue.h"
 #include "../ass_file.h"
 #include "../ass_karaoke.h"
@@ -1117,6 +1119,27 @@ void split_lines(agi::Context *c, Func&& set_time) {
 	c->ass->Commit(_("split"), AssFile::COMMIT_DIAG_ADDREM | AssFile::COMMIT_DIAG_FULL);
 }
 
+struct edit_line_split_audio final : public validate_sel_nonempty {
+	CMD_NAME("edit/line/split/audio")
+	STR_MENU("Split at cursor (at start of audio selection)")
+	STR_DISP("Split at cursor (at start of audio selection)")
+	STR_HELP("Split the current line at the cursor, dividing the line's duration at start position of audio selection")
+	CMD_TYPE(COMMAND_VALIDATE)
+
+	void operator()(agi::Context *c) override {
+		auto timing_controller = c->audioController->GetTimingController();
+		if (!timing_controller) return;
+
+		auto range = timing_controller->GetPrimaryPlaybackRange();
+		if (range.length() == 0) return;
+
+		split_lines(c, [&](AssDialogue *n1, AssDialogue *n2) {
+			n1->End = range.begin();
+			n2->Start = range.begin();
+		});
+	}
+};
+
 struct edit_line_split_estimate final : public validate_video_and_sel_nonempty {
 	CMD_NAME("edit/line/split/estimate")
 	STR_MENU("Split at cursor (estimate times)")
@@ -1297,6 +1320,7 @@ namespace cmd {
 		reg(std::make_unique<edit_line_paste_over>());
 		reg(std::make_unique<edit_line_recombine>());
 		reg(std::make_unique<edit_line_split_by_karaoke>());
+		reg(std::make_unique<edit_line_split_audio>());
 		reg(std::make_unique<edit_line_split_estimate>());
 		reg(std::make_unique<edit_line_split_preserve>());
 		reg(std::make_unique<edit_line_split_video>());
