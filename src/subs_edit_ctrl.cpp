@@ -64,6 +64,7 @@
 enum {
 	EDIT_MENU_SPLIT_PRESERVE = (wxID_HIGHEST + 1) + 4000,
 	EDIT_MENU_SPLIT_ESTIMATE,
+    EDIT_MENU_SPLIT_AUDIO,
 	EDIT_MENU_SPLIT_VIDEO,
 	EDIT_MENU_CUT,
 	EDIT_MENU_COPY,
@@ -116,6 +117,7 @@ SubsTextEditCtrl::SubsTextEditCtrl(wxWindow* parent, wxSize wsize, long style, a
 	Bind(wxEVT_MENU, bind(&SubsTextEditCtrl::SelectAll, this), EDIT_MENU_SELECT_ALL);
 
 	if (context) {
+        Bind(wxEVT_MENU, bind(&cmd::call, "edit/line/split/audio", context), EDIT_MENU_SPLIT_AUDIO);
 		Bind(wxEVT_MENU, bind(&cmd::call, "edit/line/split/preserve", context), EDIT_MENU_SPLIT_PRESERVE);
 		Bind(wxEVT_MENU, bind(&cmd::call, "edit/line/split/estimate", context), EDIT_MENU_SPLIT_ESTIMATE);
 		Bind(wxEVT_MENU, bind(&cmd::call, "edit/line/split/video", context), EDIT_MENU_SPLIT_VIDEO);
@@ -389,6 +391,7 @@ void SubsTextEditCtrl::OnContextMenu(wxContextMenuEvent &event) {
 	// Split
 	if (context) {
 		menu.AppendSeparator();
+        menu.Append(EDIT_MENU_SPLIT_AUDIO, _("Split at cursor (at start of audio selection)"));
 		menu.Append(EDIT_MENU_SPLIT_PRESERVE, _("Split at cursor (preserve times)"));
 		menu.Append(EDIT_MENU_SPLIT_ESTIMATE, _("Split at cursor (estimate times)"));
 		cmd::Command *split_video = cmd::get("edit/line/split/video");
