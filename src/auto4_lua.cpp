@@ -42,6 +42,7 @@
 #include "auto4_lua_factory.h"
 #include "audio_controller.h"
 #include "audio_timing.h"
+#include "base_grid.h"
 #include "command/command.h"
 #include "compat.h"
 #include "frame_main.h"
@@ -281,6 +282,22 @@ namespace {
 		return 0;
 	}
 
+    int activate_subtitle_grid(lua_State *L)
+    {
+    	// Get the context
+    	const agi::Context* context = get_context(L);
+
+    	if (context && context->subsGrid) {
+    		// Set focus to the subtitle grid
+    		context->subsGrid->SetFocus();
+    		return 0;  // No return value
+    	}
+
+    	// If we can't set focus, return false or throw an error
+    	lua_pushboolean(L, false);
+    	return 1;
+    }
+
 	int project_properties(lua_State *L)
 	{
 		const agi::Context *c = get_context(L);
@@ -485,6 +502,7 @@ namespace {
 		set_field<project_properties>(L, "project_properties");
 		set_field<lua_get_audio_selection>(L, "get_audio_selection");
 		set_field<lua_set_status_text>(L, "set_status_text");
+		set_field<activate_subtitle_grid>(L, "activate_subtitle_grid");
 
 		// store aegisub table to globals
 		lua_settable(L, LUA_GLOBALSINDEX);
